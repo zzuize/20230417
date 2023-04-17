@@ -1,0 +1,29 @@
+// 将比赛信息添加到有序集合中
+String key = "games";
+String member = "matchId";
+double score = startTime.getTime();
+redisTemplate.opsForZSet().add(key, member, score);
+
+// 将盘口信息添加到对应比赛的有序集合中
+String oddsKey = "odds:matchId";
+String oddsMember = "marketId";
+double oddsScore = odds.getOdds();
+redisTemplate.opsForZSet().add(oddsKey, oddsMember, oddsScore);
+
+
+
+
+// 获取一段时间内的比赛信息
+Date startTime = new Date();
+Date endTime = new Date(startTime.getTime() + 24 * 60 * 60 * 1000);
+Set<String> matches = redisTemplate.opsForZSet().rangeByScore("games", startTime.getTime(), endTime.getTime());
+
+// 获取比赛对应的盘口信息
+for (String matchId : matches) {
+    Set<String> marketIds = redisTemplate.opsForZSet().range("odds:" + matchId, 0, -1);
+    for (String marketId : marketIds) {
+        // 获取盘口信息
+        String oddsInfo = redisTemplate.opsForValue().get("C66:mk:1:" + matchId + ":" + marketId);
+        // TODO: 处理盘口信息
+    }
+}
