@@ -1,0 +1,84 @@
+public class RedisUtil {
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    public RedisUtil(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
+    public void addMarketInfo(String key, String marketInfo) {
+        String marketKey = key + ":markets";
+        redisTemplate.opsForList().rightPush(marketKey, marketInfo);
+    }
+
+    public List<String> getMarketInfo(String key) {
+        String marketKey = key + ":markets";
+        Long size = redisTemplate.opsForList().size(marketKey);
+        return redisTemplate.opsForList().range(marketKey, 0, size - 1);
+    }
+
+    public List<String> getAllGameKeys() {
+        List<String> keys = new ArrayList<>();
+        String prefix = "C66:*";
+        ScanOptions options = ScanOptions.scanOptions().match(prefix).build();
+        Cursor<String> cursor = redisTemplate.getConnectionFactory().getConnection().scan(options);
+        while (cursor.hasNext()) {
+            keys.add(cursor.next());
+        }
+        return keys;
+    }
+}
+
+public class GameService {
+
+    private final RedisUtil redisUtil;
+
+    private final GameMapper gameMapper;
+
+    public GameService(RedisUtil redisUtil, GameMapper gameMapper) {
+        this.redisUtil = redisUtil;
+        this.gameMapper = gameMapper;
+    }
+
+    public void processMarketInfo() {
+        List<String> gameKeys = redisUtil.getAllGameKeys();
+        for (String gameKey : gameKeys) {
+            String[] keySegments = gameKey.split(":");
+            if (keySegments.length < 5) {
+                continue;
+            }
+            String matchId = keySegments[4];
+            List<String> marketList = redisUtil.getMarketInfo(gameKey);
+            if (marketList != null && !marketList.isEmpty()) {
+                Game game = gameMapper.selectGameById(matchId);
+                if (game != null) {
+                    // 将盘口信息保存到比赛中
+                    game.setMarketInfo(marketList);
+                    gameMapper.updateGame(game);
+                    // 删除已经处理过的盘口信息
+                    String marketKey = gameKey + ":markets";
+                    redisUtil.redisTemplate.delete(marketKey);
+                }
+            }
+        }
+    }
+}
+
+public interface GameMapper {
+
+    Game selectGameById(String matchId);
+
+    void updateGame(Game game);
+}
+
+public class Game {
+
+    private String matchId;
+
+    private String matchName;
+
+    private List<String> marketInfo;
+
+    // getter and setter
+}
+
