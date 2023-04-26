@@ -1,0 +1,48 @@
+
+
+{
+    "markets": [
+        {
+            "betType": 128,
+            "betTypeName": "HF/FT Odd/Event",
+            "marketDataList": [
+                {
+                    "betType": 128,
+                    "price": 1.5,
+                    "key": "oo"
+                },
+                {
+                    "betType": 128,
+                    "price": 1.5,
+                    "key": "oe"
+                },
+                {
+                    "betType": 128,
+                    "price": 1.5,
+                    "key": "eo"
+                },
+                {
+                    "betType": 128,
+                    "price": 1.5,
+                    "key": "ee"
+                }
+            ]
+        },
+        {
+            "betType": 1,
+            "betTypeName": "Handicap",
+            "marketDataList": [
+                {
+                    "betType": "h",
+                    "price": 1.77,
+                    "key": "oo"
+                },
+                {
+                    "betType": "a",
+                    "price": 1.5,
+                    "key": "oe"
+                }
+            ]
+        }
+    ]
+}
