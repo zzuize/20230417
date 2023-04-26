@@ -1,11 +1,17 @@
 
 
 {
+
+     "matchId":"6521154",
+ 
+    // 。。。。省略 比赛详细信息
+   
+    // markets 是一个按照betType分组好的 对象数组
     "markets": [
         {
-            "betType": 128,
-            "betTypeName": "HF/FT Odd/Event",
-            "marketDataList": [
+            "betType": 128,   // 分组好的betType，这个对象里面只会有betType=128的数据
+            "betTypeName": "HF/FT Odd/Event",  // betType对应的英文名字
+            "marketDataList": [    // 我理解的是前端拿到这个数组后按照数组里面的元素个数去生成表格，这里有个问题market里面的key需要你们自己处理
                 {
                     "betType": 128,
                     "price": 1.5,
@@ -28,6 +34,8 @@
                 }
             ]
         },
+        
+        // 另一个分组好的betType对象
         {
             "betType": 1,
             "betTypeName": "Handicap",
