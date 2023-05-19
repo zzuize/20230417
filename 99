@@ -1,0 +1,20 @@
+<insert id="batchInsertOrUpdate" parameterType="java.util.List">
+  INSERT INTO your_table (id, name, age)
+  VALUES
+  <foreach collection="list" item="item" separator=",">
+    (#{item.id}, #{item.name}, #{item.age})
+  </foreach>
+  ON DUPLICATE KEY UPDATE
+  name = CASE
+    <foreach collection="list" item="item" separator=" ">
+      WHEN #{item.name} <> name THEN #{item.name}
+    </foreach>
+    ELSE name
+  END,
+  age = CASE
+    <foreach collection="list" item="item" separator=" ">
+      WHEN #{item.age} <> age THEN #{item.age}
+    </foreach>
+    ELSE age
+  END
+</insert>
