@@ -1,31 +1,45 @@
-<insert id="insertOrUpdateMatch" parameterType="your.package.Match">
+<insert id="batchInsertOrUpdateMatch" parameterType="java.util.List">
   INSERT INTO your_table (id, created_date, creator, update_date, updator, sport_type_id,
     sport_type_name, league_name, stream_source, match_date, match_time, top, league_id,
     match_id, home_name, away_name, match_status, home_id, away_id, live_home_score,
     live_away_score, is_live)
-  VALUES (#{id}, #{createdDate}, #{creator}, #{updateDate}, #{updator}, #{sportTypeId},
-    #{sportTypeName}, #{leagueName}, #{streamSource}, #{matchDate}, #{matchTime}, #{top},
-    #{leagueId}, #{matchId}, #{homeName}, #{awayName}, #{matchStatus}, #{homeId},
-    #{awayId}, #{liveHomeScore}, #{liveAwayScore}, #{isLive})
+  VALUES
+  <foreach collection="list" item="item" separator=",">
+    (#{item.id}, #{item.createdDate}, #{item.creator}, #{item.updateDate}, #{item.updator},
+    #{item.sportTypeId}, #{item.sportTypeName}, #{item.leagueName}, #{item.streamSource},
+    #{item.matchDate}, #{item.matchTime}, #{item.top}, #{item.leagueId}, #{item.matchId},
+    #{item.homeName}, #{item.awayName}, #{item.matchStatus}, #{item.homeId}, #{item.awayId},
+    #{item.liveHomeScore}, #{item.liveAwayScore}, #{item.isLive})
+  </foreach>
   ON DUPLICATE KEY UPDATE
     match_status = CASE
-      WHEN #{matchStatus} <> match_status THEN #{matchStatus}
+      <foreach collection="list" item="item" separator=" ">
+        WHEN #{item.matchStatus} <> match_status THEN #{item.matchStatus}
+      </foreach>
       ELSE match_status
     END,
     live_home_score = CASE
-      WHEN #{liveHomeScore} <> live_home_score THEN #{liveHomeScore}
+      <foreach collection="list" item="item" separator=" ">
+        WHEN #{item.liveHomeScore} <> live_home_score THEN #{item.liveHomeScore}
+      </foreach>
       ELSE live_home_score
     END,
     live_away_score = CASE
-      WHEN #{liveAwayScore} <> live_away_score THEN #{liveAwayScore}
+      <foreach collection="list" item="item" separator=" ">
+        WHEN #{item.liveAwayScore} <> live_away_score THEN #{item.liveAwayScore}
+      </foreach>
       ELSE live_away_score
     END,
     match_date = CASE
-      WHEN #{matchDate} <> match_date THEN #{matchDate}
+      <foreach collection="list" item="item" separator=" ">
+        WHEN #{item.matchDate} <> match_date THEN #{item.matchDate}
+      </foreach>
       ELSE match_date
     END,
     match_time = CASE
-      WHEN #{matchTime} <> match_time THEN #{matchTime}
+      <foreach collection="list" item="item" separator=" ">
+        WHEN #{item.matchTime} <> match_time THEN #{item.matchTime}
+      </foreach>
       ELSE match_time
     END
 </insert>
