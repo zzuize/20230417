@@ -1,0 +1,44 @@
+@Configuration
+public class RabbitMQConfig {
+
+    @Value("${spring.rabbitmq.delayed.exchange}")
+    private String delayedExchange;
+
+    @Value("${spring.rabbitmq.delayed.queue}")
+    private String delayedQueue;
+
+    @Value("${spring.rabbitmq.delayed.routing-key}")
+    private String delayedRoutingKey;
+
+    @Bean
+    public TopicExchange delayedExchange() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-delayed-type", "topic");
+        return new TopicExchange(delayedExchange, true, false, args);
+    }
+
+    @Bean
+    public Queue delayedQueue() {
+        return new Queue(delayedQueue, true);
+    }
+
+    @Bean
+    public Binding binding() {
+        return BindingBuilder.bind(delayedQueue()).to(delayedExchange()).with(delayedRoutingKey).noargs();
+    }
+
+    // ...
+
+}@Autowired
+private RabbitTemplate rabbitTemplate;
+
+public void sendDelayedMessage(Object message, long delayMilliseconds) {
+    rabbitTemplate.convertAndSend(delayedExchange, delayedRoutingKey, message, new MessagePostProcessor() {
+        @Override
+        public Message postProcessMessage(Message message) throws AmqpException {
+            message.getMessageProperties().setDelay((int) delayMilliseconds);
+            return message;
+        }
+    });
+}
+
